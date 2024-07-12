@@ -4,6 +4,33 @@ import time
 from piezas import *
 import random
 
+def caer():
+    if pieza.mover(game_state, nxC,nyC):
+        for pos in pieza.espacios:
+            game_state[pos[0] + pieza.posicion[0],pos[1] + pieza.posicion[1]] = 1
+        pieza.posicion = np.array([15,0])
+        pieza.tipo = get_all(piezas)[random.randint(0,6)]
+        pieza.espacios = piezas[pieza.tipo]
+        pieza.giros = 2
+
+def mover(cuanto, direccion):
+    puede = True
+    if direccion == -1: 
+        for esp in pieza.espacios:
+            if game_state[esp[0] + pieza.posicion[0] -1, esp[1] + pieza.posicion[1]] == 1 or esp[0] + pieza.posicion[0] - 1 < 0:
+                puede = False
+                # print("toca isquierda")
+                break
+    elif direccion == 1: 
+        for esp in pieza.espacios:
+            if game_state[esp[0] + pieza.posicion[0] +1, esp[1] + pieza.posicion[1]] == 1 or esp[0] + pieza.posicion[0] + 1 >= nxC:
+                puede = False
+                # print("toca derecha")
+                break
+            
+    if puede:
+        pieza.posicion[0] += cuanto
+
 pygame.init()
 
 witdh, heigth = 700, 700
@@ -25,6 +52,12 @@ pieza_state = np.zeros((nxC+7,nyC+7))
 
 pieza = Pieza(np.array([15,0]), "t")
 
+# Variables de control
+left_pressed = 0
+right_pressed = 0
+down_pressed = 0
+
+ciclos = 0
 running = True
 while running:
     for event in pygame.event.get():
@@ -35,44 +68,42 @@ while running:
             if event.key == pygame.K_UP:
                 pieza.giro(game_state, nxC)
                 print("Arriba")
-        
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                left_pressed = 0
+            if event.key == pygame.K_RIGHT:
+                right_pressed = 0
+            if event.key == pygame.K_DOWN:
+                down_pressed = 0
+                
     # Obtener el estado de todas las teclas
     keys = pygame.key.get_pressed()
     
-    sleep_time = 0.3
+    sleep_time = 0.8 / nxC
+    
     if keys[pygame.K_ESCAPE]:
         running = False
+        
     if keys[pygame.K_LEFT]:
-        # print("Izquierda")
-        puede = True
-        for esp in pieza.espacios:
-            if game_state[esp[0] + pieza.posicion[0] -1, esp[1] + pieza.posicion[1]] == 1 or esp[0] + pieza.posicion[0] - 1 < 0:
-                puede = False
-                print("toca isquierda")
-                break
-            else:
-                print(str(game_state[esp[0] + pieza.posicion[0] -1,0]), str([esp[0] + pieza.posicion[0] -1,0]))
-            
-        if puede:
-            pieza.posicion[0] -= 1
+        left_pressed += 1
+        
     if keys[pygame.K_RIGHT]:
-        # print("Derecha")
-        puede = True
-        for esp in pieza.espacios:
-            if game_state[esp[0] + pieza.posicion[0] +1, esp[1] + pieza.posicion[1]] == 1 or esp[0] + pieza.posicion[0] + 1 >= nxC:
-                puede = False
-                print("toca derecha")
-                break
-            else:
-                print(str(game_state[esp[0] + pieza.posicion[0]]), str([esp[0] + pieza.posicion[0],0]))
-             
-            
-        if puede:
-            pieza.posicion[0] += 1
+        right_pressed += 1
         
     if keys[pygame.K_DOWN]:
-        # print("Abajo")
-        sleep_time = 0
+        down_pressed += 1
+    
+    umbral = 3
+        
+    if left_pressed == 1 or left_pressed > umbral:
+        mover(-1,-1)
+    if right_pressed == 1 or right_pressed > umbral:
+        mover(1,1)
+    if down_pressed == 1 or down_pressed > umbral:
+        caer()
+        
+        
     
     
     screen.fill(bg)
@@ -99,16 +130,14 @@ while running:
             else:
                 pygame.draw.polygon(screen, (50,50,50), poly, 1)
     
-    if pieza.mover(game_state, nxC,nyC):
-        for pos in pieza.espacios:
-            game_state[pos[0] + pieza.posicion[0],pos[1] + pieza.posicion[1]] = 1
-        pieza.posicion = np.array([15,0])
-        pieza.tipo = get_all(piezas)[random.randint(0,6)]
-        pieza.espacios = piezas[pieza.tipo]
-        pieza.giros = 2
+    if ciclos % nxC == 0:
+        # print("puede")
+        caer()
+    
     
     pygame.display.flip()
 
     clock.tick(60)  # Limitar a 60 FPS
+    ciclos +=1
 
 pygame.quit()

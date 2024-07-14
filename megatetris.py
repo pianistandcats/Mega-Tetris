@@ -4,14 +4,53 @@ import time
 from piezas import *
 import random
 
-def caer():
+
+
+pygame.init()
+
+witdh, heigth = 700, 700
+screen = pygame.display.set_mode((witdh,heigth))
+
+bg = 25,25,25
+
+screen.fill(bg)
+
+nxC, nyC = 30,30
+
+dimCW = witdh / nxC
+dimCH = heigth / nyC
+
+
+clock = pygame.time.Clock()
+game_state = np.zeros((nxC+7,nyC+7))
+pieza_state = np.zeros((nxC+7,nyC+7))
+
+pieza = Pieza(np.array([15,0]), "i")
+
+# Variables de control
+left_pressed = 0
+right_pressed = 0
+down_pressed = 0
+
+velocidad = nxC
+d_tiempo = 1
+print(type(velocidad))
+
+def caer(v,d_tiempo):
     if pieza.mover(game_state, nxC,nyC):
         for pos in pieza.espacios:
             game_state[pos[0] + pieza.posicion[0],pos[1] + pieza.posicion[1]] = 1
         pieza.posicion = np.array([15,0])
         pieza.tipo = get_all(piezas)[random.randint(0,6)]
         pieza.espacios = piezas[pieza.tipo]
-        pieza.giros = 2
+        pieza.giros = -1
+        d_tiempo += 0.1
+        v = (v / (1 + 0.05))+1
+        print(f"velocidad: {int(v)}")
+        print(f"d_tiempo: {d_tiempo}")
+        return int(v), d_tiempo
+    else:
+        return v, d_tiempo
 
 def mover(cuanto, direccion):
     puede = True
@@ -31,32 +70,6 @@ def mover(cuanto, direccion):
     if puede:
         pieza.posicion[0] += cuanto
 
-pygame.init()
-
-witdh, heigth = 700, 700
-screen = pygame.display.set_mode((witdh,heigth))
-
-bg = 25,25,25
-
-screen.fill(bg)
-
-nxC, nyC = 31,31
-
-dimCW = witdh / nxC
-dimCH = heigth / nyC
-
-
-clock = pygame.time.Clock()
-game_state = np.zeros((nxC+7,nyC+7))
-pieza_state = np.zeros((nxC+7,nyC+7))
-
-pieza = Pieza(np.array([15,0]), "t")
-
-# Variables de control
-left_pressed = 0
-right_pressed = 0
-down_pressed = 0
-
 ciclos = 0
 running = True
 while running:
@@ -67,7 +80,6 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 pieza.giro(game_state, nxC)
-                print("Arriba")
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
@@ -80,7 +92,7 @@ while running:
     # Obtener el estado de todas las teclas
     keys = pygame.key.get_pressed()
     
-    sleep_time = 0.8 / nxC
+    sleep_time = 0.05 / d_tiempo
     
     if keys[pygame.K_ESCAPE]:
         running = False
@@ -94,17 +106,15 @@ while running:
     if keys[pygame.K_DOWN]:
         down_pressed += 1
     
-    umbral = 3
-        
+    umbral = (d_tiempo/2) +1
+    # print(f"umbral de: {umbral}")
+    
     if left_pressed == 1 or left_pressed > umbral:
         mover(-1,-1)
     if right_pressed == 1 or right_pressed > umbral:
         mover(1,1)
     if down_pressed == 1 or down_pressed > umbral:
-        caer()
-        
-        
-    
+        velocidad,d_tiempo = caer(velocidad,d_tiempo)
     
     screen.fill(bg)
     time.sleep(sleep_time)
@@ -130,13 +140,12 @@ while running:
             else:
                 pygame.draw.polygon(screen, (50,50,50), poly, 1)
     
-    if ciclos % nxC == 0:
-        # print("puede")
-        caer()
-    
+    if ciclos % velocidad == 0:
+        velocidad,d_tiempo = caer(velocidad,d_tiempo)
+
     
     pygame.display.flip()
-
+    
     clock.tick(60)  # Limitar a 60 FPS
     ciclos +=1
 

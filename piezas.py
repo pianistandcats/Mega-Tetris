@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class Pieza:
     def __init__(self, posicion, tipo):
@@ -48,7 +49,25 @@ class Pieza:
         
         self.espacios = espacios2
     
-    def mover(self, estado, tx,ty):
+    def mover_horizontal(self, game,cuanto, direccion):
+        puede = True
+        if direccion == -1: 
+            for esp in self.espacios:
+                if game.game_state[esp[0] + self.posicion[0] -1, esp[1] + self.posicion[1]] == 1 or esp[0] + self.posicion[0] - 1 < 0:
+                    puede = False
+                    # print("toca isquierda")
+                    break
+        elif direccion == 1: 
+            for esp in self.espacios:
+                if game.game_state[esp[0] + self.posicion[0] +1, esp[1] + self.posicion[1]] == 1 or esp[0] + self.posicion[0] + 1 >= game.tablero.tx:
+                    puede = False
+                    # print("toca derecha")
+                    break
+                
+        if puede:
+            self.posicion[0] += cuanto
+    
+    def mover_vertical(self, estado, tx,ty):
         puede = True
         for pos in self.espacios:
             if estado[pos[0] + self.posicion[0], pos[1] + self.posicion[1] + 1] == 1 or pos[1] + self.posicion[1] + 1 >= ty:
@@ -60,12 +79,21 @@ class Pieza:
                 self.posicion[1] += 1
                 return False
             elif pos[1] + self.posicion[1] + 1 >= ty:
-                print("piso")
+                # print("piso")
                 return True
         else:
-            print("pieza")
+            # print("pieza")
             return True
-            
+    
+    
+    def caer(self, game):
+        if self.mover_vertical(game.game_state, game.tablero.tx,game.tablero.ty):
+            for pos in self.espacios:
+                game.game_state[pos[0] + self.posicion[0],pos[1] + self.posicion[1]] = 1
+            self.posicion = np.array([5,0])
+            self.tipo = get_all(piezas)[random.randint(0,6)]
+            self.espacios = piezas[self.tipo]
+            self.giros = -1   
         
 piezas = {
     "t": [np.array([0,0]),np.array([1,0]),np.array([-1,0]),np.array([0,-1])],

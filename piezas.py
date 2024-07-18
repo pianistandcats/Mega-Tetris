@@ -105,7 +105,7 @@ piezas = {
     "L": [np.array([0,0]),np.array([1,1]),np.array([0,-1]),np.array([0,1])],
     "Lin": [np.array([0,0]),np.array([-1,1]),np.array([0,-1]),np.array([0,1])],
     "i": [np.array([-1,2]),np.array([-1,1]),np.array([-1,0]),np.array([-1,-1])],
-    "s": [np.array([0,0]),np.array([0,1]),np.array([1,0]),np.array([-1,1])],
+    "s": [np.array([0,0]),np.array([0,1]),np.array([1,0]),np.array([1,-1])],
     "z": [np.array([0,0]),np.array([0,-1]),np.array([1,0]),np.array([1,1])],
     "o": [np.array([0,0]),np.array([1,0]),np.array([0,1]),np.array([1,1])],
 }

@@ -28,7 +28,31 @@ class Game:
         self.velocidad = self.tablero.tx
         self.d_tiempo = 1
         self.puntos = 0
+        
+        self.piezas_desordenadas = []
     
+    def desordenar_piezas(self):
+        self.piezas_desordenadas.clear()
+        orden = []
+        
+        
+        for index,valor in enumerate(piezas):
+            numero = random.randint(0,len(piezas)-1)
+            while numero in orden:
+                numero = random.randint(0,len(piezas)-1)
+            orden.append(numero)
+        
+        li = []
+        # print(f"{orden}")
+        
+        for index,valor in enumerate(orden):
+            n = orden[index]
+            # print(n)
+            li.append(get_all(piezas)[n])
+        
+        # print(f"{li}")
+        self.piezas_desordenadas = li
+           
     def actualizar_grafico(self):
         self.tablero.screen.fill(self.tablero.bg)
         for y in range(0, self.tablero.ty):
@@ -82,7 +106,7 @@ class Game:
         
 
 pygame.init()
-tablero = Tablero(10,20,20,(25,25,25))
+tablero = Tablero(10,20,25,(25,25,25))
 game = Game(tablero)
 
 clock = pygame.time.Clock()
@@ -92,6 +116,8 @@ left_pressed = 0
 right_pressed = 0
 down_pressed = 0
 
+
+game.desordenar_piezas()
 ciclos = 0
 running = True
 while running:
@@ -159,5 +185,5 @@ while running:
     
     clock.tick(60)  # Limitar a 60 FPS
     ciclos +=1
-
+    
 pygame.quit()

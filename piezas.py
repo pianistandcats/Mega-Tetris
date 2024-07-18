@@ -18,7 +18,7 @@ class Pieza:
                 # print(self.giros)
                 new_espace = giros_i[self.giros+1][num]
                     
-                print(f"mandioca {self.giros}")
+                # print(f"mandioca {self.giros}")
                     
                 espacios2.append(new_espace)
                 if game_state[new_espace[0] + self.posicion[0], new_espace[1] + self.posicion[1]] == 1 or new_espace[0] + self.posicion[0] < 0:
@@ -41,10 +41,10 @@ class Pieza:
                 
         if self.giros != 2:
             self.giros += 1
-            print(self.giros)
+            # print(self.giros)
         else:
             self.giros = -1
-            print(self.giros)
+            # print(self.giros)
             
         
         self.espacios = espacios2
@@ -91,7 +91,12 @@ class Pieza:
             for pos in self.espacios:
                 game.game_state[pos[0] + self.posicion[0],pos[1] + self.posicion[1]] = 1
             self.posicion = np.array([5,0])
-            self.tipo = get_all(piezas)[random.randint(0,6)]
+            self.tipo = game.piezas_desordenadas[0]
+            game.piezas_desordenadas.pop(0)
+            
+            if len(game.piezas_desordenadas) == 0:
+                game.desordenar_piezas()
+            
             self.espacios = piezas[self.tipo]
             self.giros = -1   
         

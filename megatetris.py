@@ -122,8 +122,8 @@ class Game:
                 
                 if self.puntos >= 1000 * self.nivel:
                    self.pasar_de_nivel() 
-                    
-                
+                self.actualizar_datos()
+                             
     def pasar_de_nivel(self):
         self.nivel += 1
                     
@@ -137,12 +137,14 @@ class Game:
             self.velocidad  = round(self.velocidad)+1
                         
             self.d_tiempo  *= self.nivel / 2
+        self.actualizar_datos()
+    
+    def actualizar_datos(self):
         clear()
         print(f"Puntos: {self.puntos}")
         print(f"Linas eliminadas totales: {self.lineas_eliminadas}")
         print(f"Nivel: {self.nivel}")
-                
-
+    
 
 
 pygame.init()
@@ -156,8 +158,14 @@ left_pressed = 0
 right_pressed = 0
 down_pressed = 0
 
+game.actualizar_datos()
 
 game.desordenar_piezas()
+game.pieza.tipo = game.piezas_desordenadas[0]
+game.pieza.espacios = piezas[game.pieza.tipo]
+game.piezas_desordenadas.pop(0)
+
+
 ciclos = 0
 running = True
 while running:
